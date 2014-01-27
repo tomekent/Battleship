@@ -112,11 +112,6 @@ for j in range(0,len(Boats_hor)):
 		newrow = [base[0] + row[0],base[1] + row[1]]
 		board_op[newrow[0]][newrow[1]] = str(Boat_types[j][0])						# Make a boat
 
-
-	
-############################################################												
-#						 PLAY THE GAME!
-############################################################
 def check_shot(guess_row,guess_col):
 		
 	for i in range(len(Boat_type_count)):
@@ -153,6 +148,13 @@ def check_shot(guess_row,guess_col):
 		print_board(board,board_op)
 
 
+
+
+
+############################################################												
+#						 PLAY THE GAME!
+############################################################
+
 Boat_type_count = []
 for i in range(5):
 	Boat_type_count.append([0,0])
@@ -169,7 +171,7 @@ shot_count = 0
 while sunk_count < 5 :
 	sunk_count = 0
 	print "\nTake a shot:\n"
-	
+	############ This is where your algorithm should go! ############### < 
 	while True:
 		try:
 			guess_row = int(raw_input("Guess Row:"))-1
@@ -177,7 +179,7 @@ while sunk_count < 5 :
 			break
 		except (TypeError, ValueError):
 			print "Error: Only input numbers"
-
+	################################################################### > 
 	check_shot(guess_row,guess_col)
 	shot_count += 1
 	print "Ships sunk:"
