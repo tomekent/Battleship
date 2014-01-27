@@ -42,6 +42,7 @@ def print_board(board,board_op):								# A function to print the board out nice
 
 def print_sunk():
 	print "\n","#" * 30	
+	sunk_count = 0
 	for k in range(len(Boat_type_count)):
 		if Boat_type_count[k][1] == 1:
 			print "[X]: %s (len:%s)" %(Boat_types[k][2], str(Boat_types[k][1]))
@@ -49,6 +50,7 @@ def print_sunk():
 		else:
 			print "[ ]: %s (len:%s)" %(Boat_types[k][2], str(Boat_types[k][1]))
 	print "#" * 30	
+	return sunk_count
 	
 def print_hit():											# Print HIT in big letters
 	print "	 _   _ ___ _____ \n	| | | |_ _|_   _|\n	| |_| || |  | |  \n	|  _  || |  | |  \n	|_| |_|___| |_|  \n"
@@ -58,12 +60,12 @@ def print_miss():											# Print MISS in big letters
 	
 def print_title():											# Title stuff
 	print "\n"*10
-	print "#"*90
-	print "#"*90
+	print "#"*80
+	print "#"*80
 	print "	 ____    _  _____ _____ _     _____ ____  _   _ ___ ____  ____  \n	| __ )  / \|_   _|_   _| |   | ____/ ___|| | | |_ _|  _ \/ ___| \n	|  _ \ / _ \ | |   | | | |   |  _| \___ \| |_| || || |_) \___ \ \n	| |_) / ___ \| |   | | | |___| |___ ___) |  _  || ||  __/ ___) |\n	|____/_/   \_\_|   |_| |_____|_____|____/|_| |_|___|_|   |____/ \n"
-	print "#"*90
-	print "#"*37,"Tom Kent  2014","#"*37
-	print "#"*90, "\n"*5
+	print "#"*80
+	print "#"*32,"Tom Kent  2014","#"*32
+	print "#"*80, "\n"*5
 ###################################################
 # 			Lets place the Boats!!!! Woooo
 ###################################################
@@ -147,6 +149,7 @@ def check_shot(guess_row,guess_col):
 		# print (turn + 1)
 		print_board(board,board_op)
 
+	return board, Boat_type_count
 
 
 
@@ -180,10 +183,11 @@ while sunk_count < 5 :
 		except (TypeError, ValueError):
 			print "Error: Only input numbers"
 	################################################################### > 
-	check_shot(guess_row,guess_col)
+	new_board, Boat_type_count = check_shot(guess_row,guess_col)
 	shot_count += 1
 	print "Ships sunk:"
-	print_sunk()
+	sunk_count = print_sunk()
+	print sunk_count
 
 
 print "Game Over\n"
