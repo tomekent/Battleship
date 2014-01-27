@@ -1,44 +1,69 @@
-import numpy, math									# To oo some maths
+import numpy, math, sys, time								# Import some libraries
 from random import randint
 
-
 ######################################################
-# 					Set up the board
+# 					Set up the board				 #
 ######################################################
-grid_size = int(10)
-
+grid_size = int(10)									
+debug_mode = 0			# Set to 1 if you want to see the opponents board
+			
 board = []
 board_op = []
-for x in range(grid_size):
+for x in range(grid_size):										# Make 2 blank boards, your guesses and you opponents ship locations
 	board.append(["-"] * grid_size)
 	board_op.append(["-"] * grid_size) 
 
 
-def print_board(board,board_op):
-	header = range(0,grid_size)
-	print "Opponents Board:"
-	print "     ",' '.join(map(str, range(1,grid_size+1)))
-	print "   ","_ " * (grid_size+1)
-	count = 0
-	for row in board_op:
-		count += 1
-		print count," "*(2-len(str(count))),"|", " ".join(row)
-	print "\n", "##"*(grid_size), "\n"
-	print "Your Guesses:"
+def print_board(board,board_op):								# A function to print the board out nicely like a gird.
+	if debug_mode == 1:
+		header = range(0,grid_size)
+		print "#" * 30	
+		print "\tOpponents Board:"
+		print "#" * 30	
+		print "     ",' '.join(map(str, range(1,grid_size+1)))
+		print "   ","_ " * (grid_size+1)
+		count = 0
+		for row in board_op:
+			count += 1
+			print count," "*(2-len(str(count))),"|", " ".join(row)
+		print "\n", "##"*(grid_size), "\n"
+	print "#" * 30	
+	print "\tYour Guesses: "
+	print "#" * 30	
 	print "     ",' '.join(map(str, range(1,grid_size+1)))
 	print "   ","_ " * (grid_size+1)
 	count = 0
 	for row in board:
 		count += 1
 		print count," "*(2-len(str(count))),"|", " ".join(row)
-
-def random_row(board):
-	return randint(0, len(board) - 1)
-
-def random_col(board):
-	return randint(0, len(board[0]) - 1)
+	
+	print "\n","#" * 30	
 
 
+def print_sunk():
+	print "\n","#" * 30	
+	for k in range(len(Boat_type_count)):
+		if Boat_type_count[k][1] == 1:
+			print "[X]: %s (len:%s)" %(Boat_types[k][2], str(Boat_types[k][1]))
+			sunk_count += 1
+		else:
+			print "[ ]: %s (len:%s)" %(Boat_types[k][2], str(Boat_types[k][1]))
+	print "#" * 30	
+	
+def print_hit():											# Print HIT in big letters
+	print "	 _   _ ___ _____ \n	| | | |_ _|_   _|\n	| |_| || |  | |  \n	|  _  || |  | |  \n	|_| |_|___| |_|  \n"
+	
+def print_miss():											# Print MISS in big letters
+	print "	 __  __ ___ ____ ____  \n	|  \/  |_ _/ ___/ ___| \n	| |\/| || |\___ \___ \ \n	| |  | || | ___) |__) |\n	|_|  |_|___|____/____/ \n"
+	
+def print_title():											# Title stuff
+	print "\n"*10
+	print "#"*90
+	print "#"*90
+	print "	 ____    _  _____ _____ _     _____ ____  _   _ ___ ____  ____  \n	| __ )  / \|_   _|_   _| |   | ____/ ___|| | | |_ _|  _ \/ ___| \n	|  _ \ / _ \ | |   | | | |   |  _| \___ \| |_| || || |_) \___ \ \n	| |_) / ___ \| |   | | | |___| |___ ___) |  _  || ||  __/ ___) |\n	|____/_/   \_\_|   |_| |_____|_____|____/|_| |_|___|_|   |____/ \n"
+	print "#"*90
+	print "#"*37,"Tom Kent  2014","#"*37
+	print "#"*90, "\n"*5
 ###################################################
 # 			Lets place the Boats!!!! Woooo
 ###################################################
@@ -88,10 +113,7 @@ for j in range(0,len(Boats_hor)):
 		board_op[newrow[0]][newrow[1]] = str(Boat_types[j][0])						# Make a boat
 
 
-
-print "\nLet's play Battleships!\n"
-print_board(board,board_op)
-		
+	
 ############################################################												
 #						 PLAY THE GAME!
 ############################################################
@@ -104,8 +126,11 @@ def check_shot(guess_row,guess_col):
 	   print "Oops, that's not even in the ocean."
 	elif board_op[guess_row][guess_col] != "-": 				# We've Hit something
 		board[guess_row][guess_col] = "X"
+		# print "Hit!"
+		print_hit()
+		time.sleep(0.5)
 		print_board(board,board_op)
-		print "Hit!"
+
 		for n in range(grid_size):
 			for m in range(grid_size):
 				if board[n][m] =='X':
@@ -121,7 +146,9 @@ def check_shot(guess_row,guess_col):
 			print "You guessed that one already."
 		else:
 			board[guess_row][guess_col] = "o"
-			print "Miss!"
+			# print "Miss!"
+			print_miss()
+			time.sleep(0.5)
 		# print (turn + 1)
 		print_board(board,board_op)
 
@@ -129,17 +156,33 @@ def check_shot(guess_row,guess_col):
 Boat_type_count = []
 for i in range(5):
 	Boat_type_count.append([0,0])
-	
-	
-for turn in range(10):
-	guess_row = int(raw_input("Guess Row:"))-1
-	guess_col = int(raw_input("Guess Col:"))-1	
-	check_shot(guess_row,guess_col)
-	print "Ships sunk:"
-	for k in range(len(Boat_type_count)):
-		if Boat_type_count[k][1] == 1:
-			print "[X]: %s (len:%s)" %(Boat_types[k][2], str(Boat_types[k][1]))
-		else:
-			print "[ ]: %s (len:%s)" %(Boat_types[k][2], str(Boat_types[k][1]))
 
-print "Game Over"
+print_title()
+time.sleep(1.)
+
+print_board(board,board_op)	
+print_sunk()
+
+# for turn in range(10):
+sunk_count = 0
+shot_count = 0
+while sunk_count < 5 :
+	sunk_count = 0
+	print "\nTake a shot:\n"
+	
+	while True:
+		try:
+			guess_row = int(raw_input("Guess Row:"))-1
+			guess_col = int(raw_input("Guess Col:"))-1
+			break
+		except (TypeError, ValueError):
+			print "Error: Only input numbers"
+
+	check_shot(guess_row,guess_col)
+	shot_count += 1
+	print "Ships sunk:"
+	print_sunk()
+
+
+print "Game Over\n"
+print "Shots Taken: %s" % str(shot_count)
