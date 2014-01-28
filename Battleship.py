@@ -1,5 +1,7 @@
 import numpy, math, sys, time								# Import some libraries
 from random import randint
+from mpl_toolkits.mplot3d import Axes3D						# To plot
+from matplotlib import pyplot, mpl
 
 ######################################################
 # 					Set up the board				 #
@@ -154,7 +156,70 @@ def check_shot(guess_row,guess_col):
 	return board, Boat_type_count
 
 
+################################################################
+# 				Monte Carlo Random Sampling Method
+################################################################
 
+def monte_carlo(board):
+	count = []
+	tot = 0;
+	for x in range(grid_size):										# Make tally 
+		count.append([0.] * grid_size)
+
+	for bid in range(len(Boats_hor)):
+		row_hor = Boats_hor[bid]
+		row_ver = Boats_ver[bid]
+		for n in range(grid_size):
+			for m in range(grid_size):
+				ok_bin_right = True
+				ok_bin_left = True
+				ok_bin_up = True
+				ok_bin_down = True			
+				for el in range(len(row_hor)):
+					if n+row_hor[el][0] < grid_size and m+row_hor[el][1] < grid_size:
+						ok_bin_right = ok_bin_right*board[n+row_hor[el][0]][m+row_hor[el][1]] == '-'
+					else:
+						ok_bin_right = False
+					if n-row_hor[el][0] >= 0 and m-row_hor[el][1] >= 0:	
+						ok_bin_left = ok_bin_left*board[n-row_hor[el][0]][m-row_hor[el][1]] == '-'	
+					else:
+						ok_bin_left = False	
+					if n+row_ver[el][0] < grid_size and m+row_ver[el][1] < grid_size:
+						ok_bin_up = ok_bin_up*board[n+row_ver[el][0]][m+row_ver[el][1]] == '-'	
+					else:
+						ok_bin_up = False
+					if n-row_ver[el][0] >= 0 and m-row_ver[el][1] >= 0:	
+						ok_bin_down = ok_bin_down*board[n-row_ver[el][0]][m-row_ver[el][1]] == '-'
+					else:
+						ok_bin_down = False					
+				if ok_bin_right:
+					for el in range(len(row_hor)): 
+						count[n+row_hor[el][0]][m+row_hor[el][1]] += ok_bin_right
+				if ok_bin_left:
+					for el in range(len(row_hor)):
+						count[n-row_hor[el][0]][m-row_hor[el][1]] += ok_bin_left
+				if ok_bin_up:
+					for el in range(len(row_ver)):
+						count[n+row_ver[el][0]][m+row_ver[el][1]] += ok_bin_up
+				if ok_bin_down:
+					for el in range(len(row_ver)):
+						count[n-row_ver[el][0]][m-row_ver[el][1]] += ok_bin_down
+				tot += ok_bin_right + ok_bin_left + ok_bin_up + ok_bin_right
+	print tot 
+	for n in range(grid_size):
+		for m in range(grid_size):
+			count[n][m] = count[n][m]/tot
+		
+# Can use this to output a prob dist plot.
+
+	# cmap1 = mpl.colors.LinearSegmentedColormap.from_list('my_colormap',['red','orange','green'],8)
+	# img2 = pyplot.figure(1)
+	# pyplot.imshow(count[::-1],interpolation='nearest',cmap = cmap1,origin='lower')
+	# img2.show()
+	# raw_input() 									# Keep the window alive :D
+	
+	return count
+			
 
 ############################################################												
 #						 PLAY THE GAME!
@@ -163,6 +228,7 @@ def check_shot(guess_row,guess_col):
 Boat_type_count = []
 for i in range(5):
 	Boat_type_count.append([0,0])
+	
 
 print_title()
 time.sleep(1.)
@@ -177,15 +243,20 @@ while sunk_count < 5 :
 	sunk_count = 0
 	print "\nTake a shot:\n"
 	############ This is where your algorithm should go! ############### < 
-	while True:
-		try:
-			guess_row = int(raw_input("Guess Row:"))-1
-			guess_col = int(raw_input("Guess Col:"))-1
-			break
-		except (TypeError, ValueError):
-			print "Error: Only input numbers"
+	count = monte_carlo(board)
+	guess_row = count.index(max(count))
+	guess_col = count[guess_row].index(max(max(count)))
+	# guess_row, guess_col = [i for i, j in enumerate(count) if j == m]
+	
+	# while True:
+	# 		try:
+	# 			guess_row = int(raw_input("Guess Row:"))-1
+	# 			guess_col = int(raw_input("Guess Col:"))-1
+	# 			break
+	# 		except (TypeError, ValueError):
+	# 			print "Error: Only input numbers"
 	################################################################### > 
-	new_board, Boat_type_count = check_shot(guess_row,guess_col)
+	board, Boat_type_count = check_shot(guess_row,guess_col)
 	shot_count += 1
 	print "Ships sunk:"
 	sunk_count = print_sunk()
