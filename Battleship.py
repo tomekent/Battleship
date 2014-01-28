@@ -8,7 +8,7 @@ from matplotlib import pyplot, mpl
 ######################################################
 grid_size = int(10)									
 debug_mode = 0			# Set to 1 if you want to see the opponents board
-			
+ai_mode = 1				# Set to 1 if you want it to play itself		
 board = []
 board_op = []
 for x in range(grid_size):										# Make 2 blank boards, your guesses and you opponents ship locations
@@ -78,8 +78,7 @@ Boat_types = [[1,2,"Destroyer"],
 			  [3,3,"Cruiser"],
 			  [4,4,"Battleship"],
 			  [5,5,"Carrier"]
-			 ]
-			
+			 ]			
 Boats_hor = [[[0,0],[0,1]], 									# Horizontal line ##
 			[[0,0],[0,1],[0,2]],								# Horizontal line ###
 			[[0,0],[0,1],[0,2]],								# Horizontal line ###
@@ -95,7 +94,7 @@ Boats_ver = [[[0,0],[1,0]],					  					# Vertical line ##'
 Boat_type_count = []											# Count how many of each have been hit
 for i in range(5):
 	Boat_type_count.append([0,0])
-	
+		
 for j in range(0,len(Boats_hor)):
 	orient = randint(0,1)
 	if orient == 0:
@@ -121,17 +120,15 @@ for j in range(0,len(Boats_hor)):
 def check_shot(guess_row,guess_col):
 	
 	for i in range(len(Boat_type_count)):
-		Boat_type_count[i][0] = 0
-			
+		Boat_type_count[i][0] = 0			
 	if (guess_row < 0 or guess_row > grid_size-1) or (guess_col < 0 or guess_col > grid_size-1):
 	   print "Oops, that's not even in the ocean."
 	elif board_op[guess_row][guess_col] != "-": 				# We've Hit something
 		board[guess_row][guess_col] = "X"
 		# print "Hit!"
 		print_hit()
-		time.sleep(0.5)
+		# time.sleep(0.5)
 		print_board(board,board_op)
-
 		for n in range(grid_size):
 			for m in range(grid_size):
 				if board[n][m] =='X':
@@ -152,7 +149,6 @@ def check_shot(guess_row,guess_col):
 			time.sleep(0.5)
 		# print (turn + 1)
 		print_board(board,board_op)
-
 	return board, Boat_type_count
 
 
@@ -165,50 +161,59 @@ def monte_carlo(board):
 	tot = 0;
 	for x in range(grid_size):										# Make tally 
 		count.append([0.] * grid_size)
-
 	for bid in range(len(Boats_hor)):
-		row_hor = Boats_hor[bid]
-		row_ver = Boats_ver[bid]
-		for n in range(grid_size):
-			for m in range(grid_size):
-				ok_bin_right = True
-				ok_bin_left = True
-				ok_bin_up = True
-				ok_bin_down = True			
-				for el in range(len(row_hor)):
-					if n+row_hor[el][0] < grid_size and m+row_hor[el][1] < grid_size:
-						ok_bin_right = ok_bin_right*board[n+row_hor[el][0]][m+row_hor[el][1]] == '-'
-					else:
-						ok_bin_right = False
-					if n-row_hor[el][0] >= 0 and m-row_hor[el][1] >= 0:	
-						ok_bin_left = ok_bin_left*board[n-row_hor[el][0]][m-row_hor[el][1]] == '-'	
-					else:
-						ok_bin_left = False	
-					if n+row_ver[el][0] < grid_size and m+row_ver[el][1] < grid_size:
-						ok_bin_up = ok_bin_up*board[n+row_ver[el][0]][m+row_ver[el][1]] == '-'	
-					else:
-						ok_bin_up = False
-					if n-row_ver[el][0] >= 0 and m-row_ver[el][1] >= 0:	
-						ok_bin_down = ok_bin_down*board[n-row_ver[el][0]][m-row_ver[el][1]] == '-'
-					else:
-						ok_bin_down = False					
-				if ok_bin_right:
-					for el in range(len(row_hor)): 
-						count[n+row_hor[el][0]][m+row_hor[el][1]] += ok_bin_right
-				if ok_bin_left:
+		if Boat_type_count[bid][1] == 0:
+			row_hor = Boats_hor[bid]
+			row_ver = Boats_ver[bid]
+			for n in range(grid_size):
+				for m in range(grid_size):
+					ok_bin_right = True
+					ok_bin_left = True
+					ok_bin_up = True
+					ok_bin_down = True			
 					for el in range(len(row_hor)):
-						count[n-row_hor[el][0]][m-row_hor[el][1]] += ok_bin_left
-				if ok_bin_up:
-					for el in range(len(row_ver)):
-						count[n+row_ver[el][0]][m+row_ver[el][1]] += ok_bin_up
-				if ok_bin_down:
-					for el in range(len(row_ver)):
-						count[n-row_ver[el][0]][m-row_ver[el][1]] += ok_bin_down
-				tot += ok_bin_right + ok_bin_left + ok_bin_up + ok_bin_right
+						if n+row_hor[el][0] < grid_size and m+row_hor[el][1] < grid_size:
+							ok_bin_right = ok_bin_right*board[n+row_hor[el][0]][m+row_hor[el][1]] == '-' 
+						else:
+							ok_bin_right = False
+						if n-row_hor[el][0] >= 0 and m-row_hor[el][1] >= 0:	
+							ok_bin_left = ok_bin_left*board[n-row_hor[el][0]][m-row_hor[el][1]] == '-'	
+						else:
+							ok_bin_left = False	
+						if n+row_ver[el][0] < grid_size and m+row_ver[el][1] < grid_size:
+							ok_bin_up = ok_bin_up*board[n+row_ver[el][0]][m+row_ver[el][1]] == '-'	
+						else:
+							ok_bin_up = False
+						if n-row_ver[el][0] >= 0 and m-row_ver[el][1] >= 0:	
+							ok_bin_down = ok_bin_down*board[n-row_ver[el][0]][m-row_ver[el][1]] == '-'
+						else:
+							ok_bin_down = False					
+					if ok_bin_right:
+						for el in range(len(row_hor)):
+							if board[n+row_hor[el][0]][m+row_hor[el][1]] == '-':
+								count[n+row_hor[el][0]][m+row_hor[el][1]] += 1
+								tot += 1
+					if ok_bin_left:
+						for el in range(len(row_hor)):
+							if board[n-row_hor[el][0]][m-row_hor[el][1]] == '-':
+								count[n-row_hor[el][0]][m-row_hor[el][1]] += 1
+								tot += 1
+					if ok_bin_up:
+						for el in range(len(row_ver)):
+							if board[n+row_ver[el][0]][m+row_ver[el][1]] == '-':
+								count[n+row_ver[el][0]][m+row_ver[el][1]] += 1
+								tot += 1
+					if ok_bin_down:
+						for el in range(len(row_ver)):
+							if board[n-row_ver[el][0]][m-row_ver[el][1]] == '-':
+								count[n-row_ver[el][0]][m-row_ver[el][1]] += 1
+								tot += 1
+								
 	print tot 
-	for n in range(grid_size):
-		for m in range(grid_size):
-			count[n][m] = count[n][m]/tot
+	return count
+	# for n in range(grid_size):
+	# 	for m in range(grid_size):
+	# 		count[n][m] = count[n][m]/tot
 		
 # Can use this to output a prob dist plot.
 
@@ -218,7 +223,7 @@ def monte_carlo(board):
 	# img2.show()
 	# raw_input() 									# Keep the window alive :D
 	
-	return count
+	
 			
 
 ############################################################												
@@ -231,7 +236,7 @@ for i in range(5):
 	
 
 print_title()
-time.sleep(1.)
+# time.sleep(1.)
 
 print_board(board,board_op)	
 print_sunk()
@@ -243,18 +248,21 @@ while sunk_count < 5 :
 	sunk_count = 0
 	print "\nTake a shot:\n"
 	############ This is where your algorithm should go! ############### < 
-	count = monte_carlo(board)
-	guess_row = count.index(max(count))
-	guess_col = count[guess_row].index(max(max(count)))
-	# guess_row, guess_col = [i for i, j in enumerate(count) if j == m]
-	
-	# while True:
-	# 		try:
-	# 			guess_row = int(raw_input("Guess Row:"))-1
-	# 			guess_col = int(raw_input("Guess Col:"))-1
-	# 			break
-	# 		except (TypeError, ValueError):
-	# 			print "Error: Only input numbers"
+	if ai_mode == 1:
+		count = monte_carlo(board)
+		for i in range(len(count)):
+		    print ["%0.0f" % i for i in count[i]]
+		guess_row = count.index(max(count))
+		guess_col = count[guess_row].index(max(max(count)))		
+	else:	
+		while True:
+				try:
+					guess_row = int(raw_input("Guess Row:"))-1
+					guess_col = int(raw_input("Guess Col:"))-1
+					break
+				except (TypeError, ValueError):
+					print "Error: Only input numbers"
+					
 	################################################################### > 
 	board, Boat_type_count = check_shot(guess_row,guess_col)
 	shot_count += 1
