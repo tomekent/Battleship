@@ -213,7 +213,9 @@ def monte_carlo(board):
 	return count
 	# for n in range(grid_size):
 	# 	for m in range(grid_size):
-	# 		count[n][m] = count[n][m]/tot
+	# 		if board[n][m] == 'X':
+	# 			board[n][m] = 0.
+			# count[n][m] = count[n][m]/tot
 		
 # Can use this to output a prob dist plot.
 
